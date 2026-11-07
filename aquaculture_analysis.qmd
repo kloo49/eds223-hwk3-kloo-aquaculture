@@ -21,7 +21,7 @@ library(sf)          # vector handling
 library(terra)       # raster handling
 library(tidyverse)
 library(tmap)        # map making
-# library(raster)
+library(kableExtra) # table formatting
 ```
 
 ```{r}
@@ -42,20 +42,20 @@ sst <- c(sst2008, sst2009, sst2010, sst2011, sst2012)
 
 ## Process data
 
-### find the mean SST from 2008-2012 (e.g. create single raster of average SST)
+### Find the mean SST from 2008-2012 (e.g. create single raster of average SST)
 
 ```{r}
 mean_sst_k <- app(sst, fun = 'mean')
-summary(mean_sst)
+summary(mean_sst_k)
 ```
 
-### convert average SST from Kelvin to Celsius (hint: subtract by 273.15)
+### Convert average SST from Kelvin to Celsius (hint: subtract by 273.15)
 
 ```{r}
 mean_sst <- mean_sst_k - 273
 summary(mean_sst)
 ```
-### crop depth raster to match the extent of the SST raster
+### Crop depth raster to match the extent of the SST raster
 - note: the resolutions of the SST and depth data do not match
 
 ```{r}
@@ -63,20 +63,20 @@ depth_crop <- crop(depth, ext(mean_sst))
 depth_crop <- project(depth_crop, mean_sst)
 ```
 
-### resample the depth data to match the resolution of the SST data using the bilinear method approach
+### Resample the depth data to match the resolution of the SST data using the bilinear method approach
 
 ```{r}
 depth_crop_resamp <- resample(depth_crop, mean_sst, method = 'bilinear')
 ```
 
-- check that the depth and SST match in resolution, extent, and coordinate reference system
-  - hint: can the rasters be stacked?
+### Check that the depth and SST match in resolution, extent, and coordinate reference system
+- hint: can the rasters be stacked?
 
 ```{r}
 # confirm extent matches
-cat("Extent matches:", ext(depth_crop_resamp) == ext(mean_sst),'\n')
-cat("Resolution matches:", res(depth_crop_resamp) == res(mean_sst),'\n')
-cat("CRS matches:", same.crs(depth_crop_resamp, mean_sst),'\n')
+cat("Extent matches:", ext(depth_crop_resamp) == ext(mean_sst))
+cat("Resolution matches:", res(depth_crop_resamp) == res(mean_sst))
+cat("CRS matches:", same.crs(depth_crop_resamp, mean_sst))
 ```
 
 ## Find suitable locations
@@ -105,21 +105,42 @@ map_habitat <- function(mintemp, maxtemp, mindepth, maxdepth,name){
   sst_zones <- as.factor(classify(mean_sst_depth[[1]], rcl = rcl_sst))
   depth_zones <- as.factor(classify(mean_sst_depth[[2]], rcl = rcl_depth))
 
+  # Find suitable habitats
   habitat_zone = as.factor(sst_zones * depth_zones)
 
   levels(habitat_zone) <- data.frame(
     value = 0:1,
     label = c("Not-Suitable", "Suitable")
   )
-  
-  title = paste("Suitable Habitats for",name)
 
-  tm_shape(habitat_zone) +
-    tm_raster(col.legend = tm_legend("Habitat Index", position = tm_pos_out("right","center"))) +
-    tm_title(title)
+  # Make map
+  map <- tm_shape(habitat_zone) +
+    tm_raster(col.legend = tm_legend("Habitat Index", 
+              position = tm_pos_out("right","center"))) +
+    tm_title(paste("Suitable Habitats for",name))  
+
+  # Determine most suitable EEZ
+  hab_area <- cellSize(habitat_zone, unit = 'km') |> 
+    mask(habitat_zone, maskvalues = 0)
+  habitable_area <- zonal(hab_area, vect(regions), fun = 'sum', na.rm = TRUE)
+  count_by_zone <- zonal(habitat_zone, vect(regions), fun = "sum", na.rm = TRUE)
+  count_by_region <- cbind(region = regions$rgn, 
+                           count = count_by_zone, 
+                           area_km2 = habitable_area)
+  colnames(count_by_region) <- c('Region', 'Count','Area(km^2)')
+
+  # Display the outputs
+  print(map)
+  print(count_by_region)
 }
 ```
 
 ```{r}
-map_habitat(11,30,-70,0,"Oyster")
+# Make map of oysters
+map_habitat(11,30,-70,0,"Oysters")
+```
+
+```{r}
+# Make map of the common squid
+map_habitat(10,14,-700,0,'Squids')
 ```

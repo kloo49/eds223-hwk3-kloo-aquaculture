@@ -45,6 +45,7 @@ sst <- c(sst2008, sst2009, sst2010, sst2011, sst2012)
 ### Find the mean SST from 2008-2012 (e.g. create single raster of average SST)
 
 ```{r}
+#| warning: False
 mean_sst_k <- app(sst, fun = 'mean')
 summary(mean_sst_k)
 ```
@@ -52,6 +53,7 @@ summary(mean_sst_k)
 ### Convert average SST from Kelvin to Celsius (hint: subtract by 273.15)
 
 ```{r}
+#| warning: False
 mean_sst <- mean_sst_k - 273
 summary(mean_sst)
 ```
@@ -136,11 +138,13 @@ map_habitat <- function(mintemp, maxtemp, mindepth, maxdepth,name){
 ```
 
 ```{r}
+#| warning: False
 # Make map of oysters
 map_habitat(11,30,-70,0,"Oysters")
 ```
 
 ```{r}
+#| warning: False
 # Make map of the common squid
 map_habitat(10,14,-700,0,'Squids')
 ```

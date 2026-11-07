@@ -16,8 +16,8 @@ The deliverables include a map of suitable habitat areas and the area broken dow
 ## Repo Structure:
 ```{r}
 .
-├── aquaculture_analysis.pdf
-├── aquaculture_analysis.qmd
+├── aquaculture_analysis.pdf               # Assignment pdf
+├── aquaculture_analysis.qmd               # Assignment quarto doc
 ├── data
 │   ├── average_annual_sst_2008.tif
 │   ├── average_annual_sst_2009.tif
@@ -33,6 +33,6 @@ The deliverables include a map of suitable habitat areas and the area broken dow
 ```
 
 ## Contributors
-Author: Kelly Loo
-Instructor: Annie Adams
+Author: Kelly Loo\
+Instructor: Annie Adams\
 Teaching Assistant: Mary Salami

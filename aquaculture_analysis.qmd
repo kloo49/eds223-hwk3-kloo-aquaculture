@@ -119,7 +119,9 @@ map_habitat <- function(mintemp, maxtemp, mindepth, maxdepth,name){
   map <- tm_shape(habitat_zone) +
     tm_raster(col.legend = tm_legend("Habitat Index", 
               position = tm_pos_out("right","center"))) +
-    tm_title(paste("Suitable Habitats for",name))  
+    tm_title(paste("Suitable Habitats for",name)) +
+    tm_graticules() +
+    tm_compass(position = c('bottom','left'))
 
   # Determine most suitable EEZ
   hab_area <- cellSize(habitat_zone, unit = 'km') |> 
@@ -148,3 +150,9 @@ map_habitat(11,30,-70,0,"Oysters")
 # Make map of the common squid
 map_habitat(10,14,-700,0,'Squids')
 ```
+
+## Reflection
+
+Looking at the maps, oysters have a small sliver of habitable areas. Oysters have a predominantly suitable habitat in Washington, then Central California, with Northern California having the least area for suitable habitats.
+
+For squids, the area for suitable habitats are larger, with Oregon and Washington having the top two largest area. Southern California has the smallest area for suitable habitats for squids.
